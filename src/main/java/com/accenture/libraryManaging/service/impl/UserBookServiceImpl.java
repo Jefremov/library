@@ -73,10 +73,15 @@ public class UserBookServiceImpl implements UserBookService {
             Set<User> users = book.getUsers();
             users.add(user);
             book.setUsers(users);
+
+            PopularityDecorator popularBook = new PopularityDecorator(book, username);
+            book.setDescription(popularBook.getDescription());
             return bookRepository.save(book);
         }
         throw new BookNotAvailableException("Book with isbn: " + isbn + " is not available");
     }
+
+
 
     @Override
     public Book returnBook(String username, String isbn) throws BookNotFoundException, UserNotFoundException {
@@ -113,13 +118,13 @@ public class UserBookServiceImpl implements UserBookService {
         }
         Book book = bookRepository.findByIsbn(isbn);
         User user = userRepository.findByUsername(username);
-        if(orderRepository.existsByBookIdAndUserId(book.getId(), user.getId())){
+        if (orderRepository.existsByBookIdAndUserId(book.getId(), user.getId())) {
             throw new BookAlreadyTakenException("Book with isbn: " + isbn + " has already been borrowed by user " + username);
         }
-        if(book.getAvailable() > 0){
+        if (book.getAvailable() > 0) {
             throw new BookAlreadyTakenException("Book with isbn: " + isbn + " is available");
         }
-        if(user.getBooks().contains(book)){
+        if (user.getBooks().contains(book)) {
             throw new BookAlreadyTakenException("Book with isbn: " + isbn + " has already been borrowed by user " + username);
         }
         Order order = new Order();
