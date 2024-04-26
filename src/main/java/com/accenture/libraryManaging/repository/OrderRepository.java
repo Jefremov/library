@@ -13,4 +13,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     void deleteByBookId(Long bookId);
 
     List<Order> findByBookId(Long bookIsbn);
+
+    boolean existsByBookIdAndUserId(Long bookId, Long userId);
 }

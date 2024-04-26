@@ -98,7 +98,7 @@ public class UserBookServiceImpl implements UserBookService {
             userBookRepository.delete(userBook);
 
             bookPublisher.notifyObservers(isbn);
-            orderRepository.deleteByBookId(book.getId());
+
 
             return bookRepository.save(book);
         }
@@ -117,6 +117,9 @@ public class UserBookServiceImpl implements UserBookService {
         }
         Book book = bookRepository.findByIsbn(isbn);
         User user = userRepository.findByUsername(username);
+        if(orderRepository.existsByBookIdAndUserId(book.getId(), user.getId())){
+            throw new BookAlreadyTakenException("Book with isbn: " + isbn + " has already been borrowed by user " + username);
+        }
         if(book.getAvailable() > 0){
             throw new BookAlreadyTakenException("Book with isbn: " + isbn + " is available");
         }

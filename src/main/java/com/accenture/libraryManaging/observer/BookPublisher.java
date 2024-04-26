@@ -2,6 +2,7 @@ package com.accenture.libraryManaging.observer;
 
 import com.accenture.libraryManaging.repository.*;
 import com.accenture.libraryManaging.repository.entity.*;
+import jakarta.transaction.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
@@ -15,13 +16,13 @@ public class BookPublisher {
     private BookRepository bookRepository;
 
     @Autowired
-
-    public BookPublisher(List<BookObserver> observers, OrderRepository orderRepository, UserRepository userRepository) {
+    public BookPublisher(List<BookObserver> observers, OrderRepository orderRepository,
+                         UserRepository userRepository, BookRepository bookRepository) {
         this.observers = observers;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
+        this.bookRepository = bookRepository;
     }
-
 
     public void addObserver(BookObserver observer) {
         observers.add(observer);
@@ -31,6 +32,7 @@ public class BookPublisher {
         observers.remove(observer);
     }
 
+    @Transactional
     public void notifyObservers(String bookIsbn) {
         Book book = bookRepository.findByIsbn(bookIsbn);
         List<Order> orders = orderRepository.findByBookId(book.getId());
@@ -44,5 +46,6 @@ public class BookPublisher {
                 observer.update(bookIsbn, user.getUsername());
             }
         }
+        orderRepository.deleteByBookId(book.getId());
     }
 }
