@@ -4,6 +4,7 @@ import com.accenture.libraryManaging.dao.*;
 import com.accenture.libraryManaging.dto.*;
 import com.accenture.libraryManaging.exceptions.*;
 import com.accenture.libraryManaging.factory.*;
+import com.accenture.libraryManaging.iterator.*;
 import com.accenture.libraryManaging.mapper.*;
 import com.accenture.libraryManaging.repository.*;
 import com.accenture.libraryManaging.repository.entity.*;
@@ -23,6 +24,7 @@ public class BookServiceImpl implements BookService {
     private BookFactory bookFactory;
     private BookMapper bookMapper;
     private UserBookService userBookService;
+
 
     @Autowired
     public BookServiceImpl(BookRepository bookRepository, UserRepository userRepository, BookFactory bookFactory, BookMapper bookMapper, UserBookService userBookService) {
@@ -87,6 +89,20 @@ public class BookServiceImpl implements BookService {
         BookDao bookDao = bookMapper.mapToDao(book);
         bookDao.setUsers(userBookService.getUsersByBook(book));
         return bookDao;
+    }
+
+    @Override
+    public String getAllBooksIsbnAsString() {
+
+        List<Book> books = bookRepository.findAll();
+        BookListIterator iterator = new BookListIterator(books);
+        StringJoiner joiner = new StringJoiner("\n");
+        while (iterator.hasNext()) {
+            Book book = iterator.next();
+            joiner.add(book.getTitle());
+        }
+
+        return joiner.toString();
     }
 
 

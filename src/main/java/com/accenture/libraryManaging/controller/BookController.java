@@ -40,6 +40,11 @@ public class BookController {
         return new ResponseEntity<>(bookService.getBookInfoByTitle(title), HttpStatus.OK);
     }
 
+    @GetMapping("/books")
+    public ResponseEntity<?> getAllBooks() {
+        return new ResponseEntity<>(bookService.getAllBooksIsbnAsString(), HttpStatus.OK);
+    }
+
 
 }
 

@@ -17,5 +17,6 @@ public interface BookService {
 
     BookDao getBookInfoByTitle(String title) throws BookNotFoundException;
 
+    String getAllBooksIsbnAsString();
 }
 
