@@ -25,15 +25,15 @@ public class UserBookServiceImpl implements UserBookService {
         this.userRepository = userRepository;
     }
 
-//    @Override
-//    public Set<String> getBooksByUser(User user) {
-//            List<UserBook> userBooks = userBookRepository.findByUserId(user.getId());
-//        Set<String> books = new HashSet<>();
-//        for (UserBook userBook : userBooks) {
-//            books.add(userBook.getBook().getIsbn());
-//        }
-//        return books;
-//    }
+    @Override
+    public Set<String> getBooksByUser(User user) {
+            List<UserBook> userBooks = userBookRepository.findByUserId(user.getId());
+        Set<String> books = new HashSet<>();
+        for (UserBook userBook : userBooks) {
+            books.add(userBook.getBook().getIsbn());
+        }
+        return books;
+    }
 
     @Override
     public Set<String> getUsersByBook(Book book) {
@@ -49,29 +49,27 @@ public class UserBookServiceImpl implements UserBookService {
     @Transactional
     public Book getBook(String username, String isbn)
             throws BookNotFoundException, BookNotAvailableException, UserNotFoundException, BookAlreadyTakenException {
-//
-//        if (!bookRepository.existsByIsbn(isbn)) {
-//            throw new BookNotFoundException("Book with isbn: " + isbn + " not found");
-//        }
-//        if (!userRepository.existsByUsername(username)) {
-//            throw new UserNotFoundException("User with username: " + username + " not found");
-//        }
-//        Book book = bookRepository.findByIsbn(isbn);
-//        User user = userRepository.findByUsername(username);
-//        Set<String> books = getBooksByUser(user);
-//        if (book.getAvailable() > 0) {
-//            if (books.contains(isbn)) {
-//                throw new BookAlreadyTakenException("Book with isbn: " + isbn + " has already been borrowed by user " + username);
-//            }
-//            book.setAvailable(book.getAvailable() - 1);
-//            Set<User> users = book.getUsers();
-//            users.add(user);
-//            book.setUsers(users);
-//            return bookRepository.save(book);
-//        }
-//        throw new BookNotAvailableException("Book with isbn: " + isbn + " is not available");
 
-        return null;
+        if (!bookRepository.existsByIsbn(isbn)) {
+            throw new BookNotFoundException("Book with isbn: " + isbn + " not found");
+        }
+        if (!userRepository.existsByUsername(username)) {
+            throw new UserNotFoundException("User with username: " + username + " not found");
+        }
+        Book book = bookRepository.findByIsbn(isbn);
+        User user = userRepository.findByUsername(username);
+        Set<String> books = getBooksByUser(user);
+        if (book.getAvailable() > 0) {
+            if (books.contains(isbn)) {
+                throw new BookAlreadyTakenException("Book with isbn: " + isbn + " has already been borrowed by user " + username);
+            }
+            book.setAvailable(book.getAvailable() - 1);
+            Set<User> users = book.getUsers();
+            users.add(user);
+            book.setUsers(users);
+            return bookRepository.save(book);
+        }
+        throw new BookNotAvailableException("Book with isbn: " + isbn + " is not available");
     }
 
     @Override

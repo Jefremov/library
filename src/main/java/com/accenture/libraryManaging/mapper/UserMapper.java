@@ -14,7 +14,7 @@ public class UserMapper {
         User user = new User();
         user.setUsername(userDto.getName());
         user.setEmail(userDto.getEmail());
-//        user.setOrders(new ArrayList<Order>());
+        user.setOrders(new ArrayList<Order>());
         return user;
     }
 

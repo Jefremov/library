@@ -1,10 +1,6 @@
 package com.accenture.libraryManaging.email;
 
-import org.springframework.stereotype.*;
 
-import java.util.*;
-
-@Component
 public class EmailClient {
 
     private static EmailClient instance; // Singleton instance

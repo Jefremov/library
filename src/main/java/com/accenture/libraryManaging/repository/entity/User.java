@@ -21,8 +21,8 @@ public class User {
     @Column(name = "email")
     private String email;
 
-//    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
-//    private List<Order> orders;
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
+    private List<Order> orders;
 
     @ManyToMany
     @JoinTable(

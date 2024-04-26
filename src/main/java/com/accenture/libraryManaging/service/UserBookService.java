@@ -6,7 +6,7 @@ import com.accenture.libraryManaging.repository.entity.*;
 import java.util.*;
 
 public interface UserBookService {
-//    Set<String> getBooksByUser(User user);
+    Set<String> getBooksByUser(User user);
 
     Set<String> getUsersByBook(Book book);
 
