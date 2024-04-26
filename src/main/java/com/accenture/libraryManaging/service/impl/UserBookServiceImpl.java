@@ -1,11 +1,12 @@
 package com.accenture.libraryManaging.service.impl;
 
-import com.accenture.libraryManaging.email.*;
+
 import com.accenture.libraryManaging.exceptions.*;
 import com.accenture.libraryManaging.observer.*;
 import com.accenture.libraryManaging.repository.*;
 import com.accenture.libraryManaging.repository.entity.*;
 import com.accenture.libraryManaging.service.*;
+import com.accenture.libraryManaging.template.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
@@ -20,16 +21,24 @@ public class UserBookServiceImpl implements UserBookService {
     private UserRepository userRepository;
     private BookPublisher bookPublisher;
     private OrderRepository orderRepository;
+    private BorrowBookOperation borrowBookOperation;
+    private ReturnBookOperation returnBookOperation;
+
 
     @Autowired
     public UserBookServiceImpl(BookRepository bookRepository, UserBookRepository userBookRepository,
-                               UserRepository userRepository, BookPublisher bookPublisher, OrderRepository orderRepository) {
+                               UserRepository userRepository, BookPublisher bookPublisher,
+                               OrderRepository orderRepository, BorrowBookOperation borrowBookOperation,
+                               ReturnBookOperation returnBookOperation) {
         this.bookRepository = bookRepository;
         this.userBookRepository = userBookRepository;
         this.userRepository = userRepository;
         this.bookPublisher = bookPublisher;
         this.orderRepository = orderRepository;
+        this.borrowBookOperation = borrowBookOperation;
+        this.returnBookOperation = returnBookOperation;
     }
+
 
     @Override
     public Set<String> getBooksByUser(User user) {
@@ -55,67 +64,35 @@ public class UserBookServiceImpl implements UserBookService {
     @Transactional
     public Book getBook(String username, String isbn)
             throws BookNotFoundException, BookNotAvailableException, UserNotFoundException, BookAlreadyTakenException {
-
-        if (!bookRepository.existsByIsbn(isbn)) {
-            throw new BookNotFoundException("Book with isbn: " + isbn + " not found");
-        }
-        if (!userRepository.existsByUsername(username)) {
-            throw new UserNotFoundException("User with username: " + username + " not found");
-        }
+        checkBookAndUser(username, isbn);
         Book book = bookRepository.findByIsbn(isbn);
         User user = userRepository.findByUsername(username);
         Set<String> books = getBooksByUser(user);
-        if (book.getAvailable() > 0) {
-            if (books.contains(isbn)) {
-                throw new BookAlreadyTakenException("Book with isbn: " + isbn + " has already been borrowed by user " + username);
-            }
-            book.setAvailable(book.getAvailable() - 1);
-            Set<User> users = book.getUsers();
-            users.add(user);
-            book.setUsers(users);
 
-            PopularityDecorator popularBook = new PopularityDecorator(book, username);
-            book.setDescription(popularBook.getDescription());
-            return bookRepository.save(book);
-        }
-        throw new BookNotAvailableException("Book with isbn: " + isbn + " is not available");
+        performBookOperation(borrowBookOperation, book, user, books, isbn, username);
+
+        return book;
     }
 
-
-
     @Override
-    public Book returnBook(String username, String isbn) throws BookNotFoundException, UserNotFoundException {
-        if (!bookRepository.existsByIsbn(isbn)) {
-            throw new BookNotFoundException("Book with isbn: " + isbn + " not found");
-        }
-        if (!userRepository.existsByUsername(username)) {
-            throw new UserNotFoundException("User with username: " + username + " not found");
-        }
+    public Book returnBook(String username, String isbn) throws BookNotFoundException, UserNotFoundException,
+            BookAlreadyTakenException, BookNotAvailableException {
+
+        checkBookAndUser(username, isbn);
         Book book = bookRepository.findByIsbn(isbn);
         User user = userRepository.findByUsername(username);
+        Set<String> books = getBooksByUser(user);
+        performBookOperation(returnBookOperation, book, user, books, isbn, username);
         UserBook userBook = userBookRepository.findByUserIdAndBookId(user.getId(), book.getId());
-        if (userBook != null) {
-            book.setAvailable(book.getAvailable() + 1);
-            Set<User> users = book.getUsers();
-            users.remove(user);
-            book.setUsers(users);
-            userBookRepository.delete(userBook);
-            bookPublisher.notifyObservers(isbn);
-            return bookRepository.save(book);
-        }
-        throw new BookNotFoundException("Book with isbn: " + isbn + " has not been borrowed by user " + username);
-
+        userBookRepository.delete(userBook);
+        bookPublisher.notifyObservers(isbn);
+        return book;
     }
 
     @Override
     public String orderBook(String username, String isbn) throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException {
 
-        if (!bookRepository.existsByIsbn(isbn)) {
-            throw new BookNotFoundException("Book with isbn: " + isbn + " not found");
-        }
-        if (!userRepository.existsByUsername(username)) {
-            throw new UserNotFoundException("User with username: " + username + " not found");
-        }
+        checkBookAndUser(username, isbn);
         Book book = bookRepository.findByIsbn(isbn);
         User user = userRepository.findByUsername(username);
         if (orderRepository.existsByBookIdAndUserId(book.getId(), user.getId())) {
@@ -134,5 +111,20 @@ public class UserBookServiceImpl implements UserBookService {
         return "Book ordered successfully";
     }
 
+    protected void checkBookAndUser(String username, String isbn) throws BookNotFoundException, UserNotFoundException {
+        if (!bookRepository.existsByIsbn(isbn)) {
+            throw new BookNotFoundException("Book with isbn: " + isbn + " not found");
+        }
+        if (!userRepository.existsByUsername(username)) {
+            throw new UserNotFoundException("User with username: " + username + " not found");
+        }
+    }
+
+    protected void performBookOperation(BookOperation operation, Book book, User user, Set<String> books, String isbn, String username)
+            throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException, BookNotAvailableException {
+
+        operation.perform(book, user, books);
+        bookRepository.save(book);
+    }
 
 }

@@ -67,7 +67,7 @@ class UserBookControllerTest {
     }
 
     @Test
-    void returnBookReturnsBookWhenBookExistsAndIsReturnedSuccessfully() throws BookNotFoundException, UserNotFoundException {
+    void returnBookReturnsBookWhenBookExistsAndIsReturnedSuccessfully() throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException {
         String isbn = "1234567890";
         String username = "username";
         Mockito.when(userBookService.returnBook(username, isbn)).thenReturn(book);
@@ -76,7 +76,7 @@ class UserBookControllerTest {
     }
 
     @Test
-    void returnBookReturnsStatusOkWhenBookExistsAndIsReturnedSuccessfully() throws BookNotFoundException, UserNotFoundException {
+    void returnBookReturnsStatusOkWhenBookExistsAndIsReturnedSuccessfully() throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException {
         String isbn = "1234567890";
         String username = "username";
         Mockito.when(userBookService.returnBook(username, isbn)).thenReturn(book);
@@ -85,7 +85,7 @@ class UserBookControllerTest {
     }
 
     @Test
-    void returnBookThrowsBookNotFoundExceptionWhenBookDoesNotExist() throws BookNotFoundException, UserNotFoundException {
+    void returnBookThrowsBookNotFoundExceptionWhenBookDoesNotExist() throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException {
         String isbn = "1234567890";
         String username = "username";
         Mockito.when(userBookService.returnBook(username, isbn)).thenThrow(new BookNotFoundException("Book with isbn: " + isbn + " not found"));
@@ -94,7 +94,7 @@ class UserBookControllerTest {
     }
 
     @Test
-    void returnBookThrowsUserNotFoundExceptionWhenUserDoesNotExist() throws BookNotFoundException, UserNotFoundException {
+    void returnBookThrowsUserNotFoundExceptionWhenUserDoesNotExist() throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException {
         String isbn = "1234567890";
         String username = "username";
         Mockito.when(userBookService.returnBook(username, isbn)).thenThrow(new UserNotFoundException("User with username: " + username + " not found"));
@@ -103,7 +103,7 @@ class UserBookControllerTest {
     }
 
     @Test
-    void returnBookThrowsBookAlreadyTakenExceptionWhenBookIsAlreadyTaken() throws BookNotFoundException, UserNotFoundException {
+    void returnBookThrowsBookAlreadyTakenExceptionWhenBookIsAlreadyTaken() throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException {
         String isbn = "1234567890";
         String username = "username";
         Mockito.when(userBookService.returnBook(username, isbn)).thenThrow(new BookNotFoundException("Book with isbn: " + isbn + " is already taken"));

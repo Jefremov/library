@@ -26,13 +26,13 @@ public class UserBookController {
 
     @PostMapping("/returnBook/{username}/{isbn}")
     public ResponseEntity<?> returnBook(@PathVariable String username, @PathVariable String isbn)
-            throws BookNotFoundException, UserNotFoundException {
+            throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException {
         return new ResponseEntity<>(userBookService.returnBook(username, isbn), HttpStatus.OK);
     }
 
     @PostMapping("/orderBook/{username}/{isbn}")
     public ResponseEntity<?> orderBook(@PathVariable String username, @PathVariable String isbn)
-            throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException {
+            throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException {
         return new ResponseEntity<>(userBookService.orderBook(username, isbn), HttpStatus.OK);
     }
 }

@@ -5,6 +5,7 @@ import com.accenture.libraryManaging.observer.*;
 import com.accenture.libraryManaging.repository.*;
 import com.accenture.libraryManaging.repository.entity.*;
 import com.accenture.libraryManaging.repository.entity.Order;
+import com.accenture.libraryManaging.template.*;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
 
@@ -30,6 +31,11 @@ class UserBookServiceImplTest {
     private BookPublisher bookPublisher;
     @Mock
     private OrderRepository orderRepository;
+    @Mock
+    private BorrowBookOperation borrowBookOperation;
+    @Mock
+    private ReturnBookOperation returnBookOperation;
+
 
     @BeforeEach
     void setUp() {
@@ -139,38 +145,7 @@ class UserBookServiceImplTest {
     }
 
     @Test
-    void getBookThrowsBookAlreadyTakenExceptionWhenBookIsAlreadyBorrowedByUser() {
-        String username = "username";
-        String isbn = "isbn";
-        User user = new User();
-        user.setUsername(username);
-        user.setId(1L);
-
-        Book book = new Book();
-        book.setId(1L);
-        book.setIsbn(isbn);
-        user.setBooks(new HashSet<>(Collections.singletonList(book)));
-
-        UserBook userBook = new UserBook();
-        userBook.setBook(book);
-        userBook.setUser(user);
-        List<UserBook> userBooks = new ArrayList<>();
-        userBooks.add(userBook);
-
-        when(userRepository.existsByUsername(username)).thenReturn(true);
-        when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
-        when(userRepository.findByUsername(username)).thenReturn(user);
-        when(bookRepository.findByIsbn(isbn)).thenReturn(book);
-        when(userBookRepository.findByUserId(user.getId())).thenReturn(userBooks);
-
-        book.setAvailable(3);
-
-
-        assertThrows(BookAlreadyTakenException.class, () -> userBookService.getBook(username, isbn));
-    }
-
-    @Test
-    void getBookThrowsBookNotAvailableExceptionWhenBookIsNotAvailable() {
+    void getBookThrowsBookNotAvailableExceptionWhenBookIsNotAvailable() throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException, BookNotAvailableException {
         String username = "username";
         String isbn = "isbn";
         User user = new User();
@@ -182,31 +157,9 @@ class UserBookServiceImplTest {
         when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
         when(userRepository.findByUsername(username)).thenReturn(user);
         when(bookRepository.findByIsbn(isbn)).thenReturn(book);
+        doThrow(new BookNotAvailableException("Book with isbn: " + isbn + " has not been borrowed by user " + username)).when(borrowBookOperation).perform(book, user, new HashSet<>());
 
         assertThrows(BookNotAvailableException.class, () -> userBookService.getBook(username, isbn));
-    }
-
-    @Test
-    void getBookReturnsBookWhenBookIsAvailableAndUserIsValidAndBookIsNotAlreadyTakenByUser()
-            throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException, BookNotAvailableException {
-        String username = "username";
-        String isbn = "isbn";
-        User user = new User();
-        user.setUsername(username);
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setAvailable(1);
-        when(userRepository.existsByUsername(username)).thenReturn(true);
-        when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
-        when(userRepository.findByUsername(username)).thenReturn(user);
-        when(bookRepository.findByIsbn(isbn)).thenReturn(book);
-        when(bookRepository.save(book)).thenReturn(book);
-
-        Book result = userBookService.getBook(username, isbn);
-
-        assertEquals(book, result);
-        assertEquals(0, book.getAvailable());
-        assertTrue(book.getUsers().contains(user));
     }
 
     @Test
@@ -229,7 +182,7 @@ class UserBookServiceImplTest {
     }
 
     @Test
-    void returnBookThrowsBookNotFoundExceptionWhenBookIsNotBorrowedByUser() {
+    void returnBookThrowsBookNotFoundExceptionWhenBookIsNotBorrowedByUser() throws UserNotFoundException, BookNotFoundException {
         String username = "username";
         String isbn = "isbn";
         User user = new User();
@@ -240,6 +193,7 @@ class UserBookServiceImplTest {
         when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
         when(userRepository.findByUsername(username)).thenReturn(user);
         when(bookRepository.findByIsbn(isbn)).thenReturn(book);
+        doThrow(new BookNotFoundException("Book with isbn: " + isbn + " has not been borrowed by user " + username)).when(returnBookOperation).perform(book, user, new HashSet<>());
 
         assertThrows(BookNotFoundException.class, () -> userBookService.returnBook(username, isbn));
     }
@@ -257,9 +211,11 @@ class UserBookServiceImplTest {
         when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
         when(userRepository.findByUsername(username)).thenReturn(user);
         when(bookRepository.findByIsbn(isbn)).thenReturn(book);
+        doThrow(new BookNotFoundException("Book with isbn: " + isbn + " has not been borrowed by user " + username)).when(returnBookOperation).perform(book, user, new HashSet<>());
 
         assertThrows(BookNotFoundException.class, () -> userBookService.returnBook(username, isbn));
     }
+
 
     @Test
     void orderBookThrowsBookNotFoundExceptionWhenBookIsbnDoesNotExist() {
@@ -338,7 +294,7 @@ class UserBookServiceImplTest {
 
     @Test
     void orderBookReturnsSuccessMessageWhenBookIsNotAvailableAndUserIsValidAndBookIsNotAlreadyTakenByUser()
-            throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException {
+            throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException, BookNotAvailableException {
         String username = "username";
         String isbn = "isbn";
         User user = new User();
@@ -356,6 +312,5 @@ class UserBookServiceImplTest {
 
         assertEquals("Book ordered successfully", result);
     }
-
 
 }

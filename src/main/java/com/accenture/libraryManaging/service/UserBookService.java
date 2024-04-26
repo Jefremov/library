@@ -12,7 +12,7 @@ public interface UserBookService {
 
     Book getBook(String username, String isbn) throws BookNotFoundException, BookNotAvailableException, UserNotFoundException, BookAlreadyTakenException;;
 
-    Book returnBook(String username, String isbn) throws BookNotFoundException, UserNotFoundException;
+    Book returnBook(String username, String isbn) throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException;
 
-    String orderBook(String username, String isbn) throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException;
+    String orderBook(String username, String isbn) throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException;
 }
