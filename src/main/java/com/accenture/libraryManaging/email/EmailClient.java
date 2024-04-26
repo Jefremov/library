@@ -1,5 +1,7 @@
 package com.accenture.libraryManaging.email;
 
+import org.springframework.stereotype.*;
+
 
 public class EmailClient {
 

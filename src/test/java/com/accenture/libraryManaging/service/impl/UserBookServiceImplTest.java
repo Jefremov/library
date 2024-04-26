@@ -1,6 +1,7 @@
 package com.accenture.libraryManaging.service.impl;
 
 import com.accenture.libraryManaging.exceptions.*;
+import com.accenture.libraryManaging.observer.*;
 import com.accenture.libraryManaging.repository.*;
 import com.accenture.libraryManaging.repository.entity.*;
 import org.junit.jupiter.api.*;
@@ -24,6 +25,10 @@ class UserBookServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private BookPublisher bookPublisher;
+    @Mock
+    private OrderRepository orderRepository;
 
     @BeforeEach
     void setUp() {
@@ -259,5 +264,22 @@ class UserBookServiceImplTest {
         assertEquals(book, returnedBook);
         assertEquals(1, book.getAvailable());
         assertFalse(book.getUsers().contains(user));
+    }
+
+    @Test
+    void returnBookThrowsBookNotFoundExceptionWhenBookIsReturnedThatWasNotBorrowed() throws UserNotFoundException, BookNotFoundException {
+        String username = "username";
+        String isbn = "isbn";
+        User user = new User();
+        user.setUsername(username);
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setAvailable(0);
+        when(userRepository.existsByUsername(username)).thenReturn(true);
+        when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
+        when(userRepository.findByUsername(username)).thenReturn(user);
+        when(bookRepository.findByIsbn(isbn)).thenReturn(book);
+
+        assertThrows(BookNotFoundException.class, () -> userBookService.returnBook(username, isbn));
     }
 }

@@ -2,6 +2,7 @@ package com.accenture.libraryManaging.service.impl;
 
 import com.accenture.libraryManaging.email.*;
 import com.accenture.libraryManaging.exceptions.*;
+import com.accenture.libraryManaging.observer.*;
 import com.accenture.libraryManaging.repository.*;
 import com.accenture.libraryManaging.repository.entity.*;
 import com.accenture.libraryManaging.service.*;
@@ -17,17 +18,22 @@ public class UserBookServiceImpl implements UserBookService {
     private BookRepository bookRepository;
     private UserBookRepository userBookRepository;
     private UserRepository userRepository;
+    private BookPublisher bookPublisher;
+    private OrderRepository orderRepository;
 
     @Autowired
-    public UserBookServiceImpl(BookRepository bookRepository, UserBookRepository userBookRepository, UserRepository userRepository) {
+    public UserBookServiceImpl(BookRepository bookRepository, UserBookRepository userBookRepository,
+                               UserRepository userRepository, BookPublisher bookPublisher, OrderRepository orderRepository) {
         this.bookRepository = bookRepository;
         this.userBookRepository = userBookRepository;
         this.userRepository = userRepository;
+        this.bookPublisher = bookPublisher;
+        this.orderRepository = orderRepository;
     }
 
     @Override
     public Set<String> getBooksByUser(User user) {
-            List<UserBook> userBooks = userBookRepository.findByUserId(user.getId());
+        List<UserBook> userBooks = userBookRepository.findByUserId(user.getId());
         Set<String> books = new HashSet<>();
         for (UserBook userBook : userBooks) {
             books.add(userBook.getBook().getIsbn());
@@ -82,17 +88,17 @@ public class UserBookServiceImpl implements UserBookService {
         }
         Book book = bookRepository.findByIsbn(isbn);
         User user = userRepository.findByUsername(username);
+        UserBook userBook = userBookRepository.findByUserIdAndBookId(user.getId(), book.getId());
 
-        if (user.getBooks().contains(book)) {
+        if (userBook != null) {
             book.setAvailable(book.getAvailable() + 1);
             Set<User> users = book.getUsers();
             users.remove(user);
             book.setUsers(users);
+            userBookRepository.delete(userBook);
 
-            EmailClient emailClient = EmailClient.getInstance("smtp.example.com", 587, "username", "password");
-            String subject = "Subject";
-            String body = "Body";
-            emailClient.sendEmail("from@example.com", "to@example.com", subject, body);
+            bookPublisher.notifyObservers(isbn);
+            orderRepository.deleteByBookId(book.getId());
 
             return bookRepository.save(book);
         }
@@ -118,9 +124,9 @@ public class UserBookServiceImpl implements UserBookService {
             throw new BookAlreadyTakenException("Book with isbn: " + isbn + " has already been borrowed by user " + username);
         }
         Order order = new Order();
-
-
-
+        order.setUserId(user.getId());
+        order.setBookId(book.getId());
+        orderRepository.save(order);
         return "Book ordered successfully";
     }
 
