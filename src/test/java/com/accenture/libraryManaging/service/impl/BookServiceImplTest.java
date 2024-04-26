@@ -80,7 +80,6 @@ class BookServiceImplTest {
     }
 
 
-
     @Test
     void getBooksInfoByAuthorThrowsBookNotFoundExceptionWhenBooksDoNotExist() {
         String author = "Author";
@@ -167,5 +166,28 @@ class BookServiceImplTest {
         Mockito.when(bookRepository.findByTitle(title)).thenReturn(null);
 
         assertThrows(BookNotFoundException.class, () -> bookService.getBookInfoByTitle(title));
+    }
+
+    @Test
+    void getAllBooksIsbnAsStringReturnsCorrectStringWhenBooksExist() {
+        Book book1 = new Book();
+        book1.setTitle("Title1");
+        Book book2 = new Book();
+        book2.setTitle("Title2");
+        List<Book> books = Arrays.asList(book1, book2);
+        when(bookRepository.findAll()).thenReturn(books);
+
+        String returnedString = bookService.getAllBooksIsbnAsString();
+
+        assertEquals("Title1\nTitle2", returnedString);
+    }
+
+    @Test
+    void getAllBooksIsbnAsStringReturnsEmptyStringWhenNoBooksExist() {
+        when(bookRepository.findAll()).thenReturn(Collections.emptyList());
+
+        String returnedString = bookService.getAllBooksIsbnAsString();
+
+        assertEquals("", returnedString);
     }
 }

@@ -150,4 +150,28 @@ class BookControllerTest {
         assertEquals("Book with title: " + title + " not found", exception.getMessage());
     }
 
+    @Test
+    void getAllBooksReturnsCorrectBooksWhenBooksExist() {
+        String books = "1234567890\n0987654321";
+        Mockito.when(bookService.getAllBooksIsbnAsString()).thenReturn(books);
+        ResponseEntity<?> response = bookController.getAllBooks();
+        assertEquals(books, response.getBody());
+    }
+
+    @Test
+    void getAllBooksReturnsStatusOkWhenBooksExist() {
+        String books = "1234567890\n0987654321";
+        Mockito.when(bookService.getAllBooksIsbnAsString()).thenReturn(books);
+        ResponseEntity<?> response = bookController.getAllBooks();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void getAllBooksReturnsEmptyListWhenNoBooksExist() {
+        String books = "";
+        Mockito.when(bookService.getAllBooksIsbnAsString()).thenReturn(books);
+        ResponseEntity<?> response = bookController.getAllBooks();
+        assertEquals(response.getBody(), "");
+    }
+
 }
