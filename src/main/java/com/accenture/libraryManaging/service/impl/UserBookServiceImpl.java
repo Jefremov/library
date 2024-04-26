@@ -89,17 +89,13 @@ public class UserBookServiceImpl implements UserBookService {
         Book book = bookRepository.findByIsbn(isbn);
         User user = userRepository.findByUsername(username);
         UserBook userBook = userBookRepository.findByUserIdAndBookId(user.getId(), book.getId());
-
         if (userBook != null) {
             book.setAvailable(book.getAvailable() + 1);
             Set<User> users = book.getUsers();
             users.remove(user);
             book.setUsers(users);
             userBookRepository.delete(userBook);
-
             bookPublisher.notifyObservers(isbn);
-
-
             return bookRepository.save(book);
         }
         throw new BookNotFoundException("Book with isbn: " + isbn + " has not been borrowed by user " + username);

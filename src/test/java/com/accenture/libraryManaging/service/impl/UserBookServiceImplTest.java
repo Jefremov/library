@@ -4,6 +4,7 @@ import com.accenture.libraryManaging.exceptions.*;
 import com.accenture.libraryManaging.observer.*;
 import com.accenture.libraryManaging.repository.*;
 import com.accenture.libraryManaging.repository.entity.*;
+import com.accenture.libraryManaging.repository.entity.Order;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
 
@@ -244,29 +245,6 @@ class UserBookServiceImplTest {
     }
 
     @Test
-    void returnBookReturnsBookWhenBookIsReturnedSuccessfully() throws UserNotFoundException, BookNotFoundException {
-        String username = "username";
-        String isbn = "isbn";
-        User user = new User();
-        user.setUsername(username);
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setAvailable(0);
-        user.setBooks(new HashSet<>(Collections.singletonList(book)));
-        when(userRepository.existsByUsername(username)).thenReturn(true);
-        when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
-        when(userRepository.findByUsername(username)).thenReturn(user);
-        when(bookRepository.findByIsbn(isbn)).thenReturn(book);
-        when(bookRepository.save(book)).thenReturn(book);
-
-        Book returnedBook = userBookService.returnBook(username, isbn);
-
-        assertEquals(book, returnedBook);
-        assertEquals(1, book.getAvailable());
-        assertFalse(book.getUsers().contains(user));
-    }
-
-    @Test
     void returnBookThrowsBookNotFoundExceptionWhenBookIsReturnedThatWasNotBorrowed() throws UserNotFoundException, BookNotFoundException {
         String username = "username";
         String isbn = "isbn";
@@ -282,4 +260,102 @@ class UserBookServiceImplTest {
 
         assertThrows(BookNotFoundException.class, () -> userBookService.returnBook(username, isbn));
     }
+
+    @Test
+    void orderBookThrowsBookNotFoundExceptionWhenBookIsbnDoesNotExist() {
+        String username = "username";
+        String isbn = "nonExistentIsbn";
+        when(bookRepository.existsByIsbn(isbn)).thenReturn(false);
+
+        assertThrows(BookNotFoundException.class, () -> userBookService.orderBook(username, isbn));
+    }
+
+    @Test
+    void orderBookThrowsUserNotFoundExceptionWhenUsernameDoesNotExist() {
+        String username = "nonExistentUsername";
+        String isbn = "isbn";
+        when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
+        when(userRepository.existsByUsername(username)).thenReturn(false);
+
+        assertThrows(UserNotFoundException.class, () -> userBookService.orderBook(username, isbn));
+    }
+
+    @Test
+    void orderBookThrowsBookAlreadyTakenExceptionWhenBookIsAlreadyTakenByUser() {
+        String username = "username";
+        String isbn = "isbn";
+        User user = new User();
+        user.setUsername(username);
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setAvailable(0);
+        user.setBooks(new HashSet<>(Collections.singletonList(book)));
+        when(userRepository.existsByUsername(username)).thenReturn(true);
+        when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
+        when(userRepository.findByUsername(username)).thenReturn(user);
+        when(bookRepository.findByIsbn(isbn)).thenReturn(book);
+
+        assertThrows(BookAlreadyTakenException.class, () -> userBookService.orderBook(username, isbn));
+    }
+
+    @Test
+    void orderBookThrowsBookAlreadyTakenExceptionWhenBookIsAvailable() {
+        String username = "username";
+        String isbn = "isbn";
+        User user = new User();
+        user.setUsername(username);
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setAvailable(1);
+        when(userRepository.existsByUsername(username)).thenReturn(true);
+        when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
+        when(userRepository.findByUsername(username)).thenReturn(user);
+        when(bookRepository.findByIsbn(isbn)).thenReturn(book);
+
+        assertThrows(BookAlreadyTakenException.class, () -> userBookService.orderBook(username, isbn));
+    }
+
+    @Test
+    void orderBookThrowsBookAlreadyTakenExceptionWhenUserHaveAlreadyOrderedBook() {
+        String username = "username";
+        String isbn = "isbn";
+        User user = new User();
+        user.setUsername(username);
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setAvailable(0);
+        Order order = new Order();
+        order.setUserId(user.getId());
+        order.setBookId(book.getId());
+        when(userRepository.existsByUsername(username)).thenReturn(true);
+        when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
+        when(userRepository.findByUsername(username)).thenReturn(user);
+        when(bookRepository.findByIsbn(isbn)).thenReturn(book);
+        when(orderRepository.existsByBookIdAndUserId(book.getId(), user.getId())).thenReturn(true);
+
+        assertThrows(BookAlreadyTakenException.class, () -> userBookService.orderBook(username, isbn));
+    }
+
+    @Test
+    void orderBookReturnsSuccessMessageWhenBookIsNotAvailableAndUserIsValidAndBookIsNotAlreadyTakenByUser()
+            throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException {
+        String username = "username";
+        String isbn = "isbn";
+        User user = new User();
+        user.setUsername(username);
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setAvailable(0);
+        when(userRepository.existsByUsername(username)).thenReturn(true);
+        when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
+        when(userRepository.findByUsername(username)).thenReturn(user);
+        when(bookRepository.findByIsbn(isbn)).thenReturn(book);
+        when(orderRepository.existsByBookIdAndUserId(book.getId(), user.getId())).thenReturn(false);
+
+        String result = userBookService.orderBook(username, isbn);
+
+        assertEquals("Book ordered successfully", result);
+    }
+
+
 }

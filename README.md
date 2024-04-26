@@ -12,6 +12,7 @@ Develop a program for managing a library using the Java programming language. Th
 - Use the Observer pattern to implement a mechanism for notifying users about the appearance of new books in the library.
 
 ## Other GoF Patterns
+- Singleton pattern for connecting to the mail server to send notifications to users.
 - Adapter pattern for converting book data from different sources (e.g., databases, APIs) into a format compatible with the program.
 - Iterator pattern for traversing the collection of books and performing operations on them.
 - Command pattern for implementing user interactions with the library, such as adding a book, removing a book, and searching for a book.
