@@ -36,7 +36,7 @@ Application functionality:
 - Viewing book information by author.
 - Viewing book information by title.
 - Viewing information about all books. 
-#
+
 Book information includes all users currently reading that book.
 When taking a book, checks are performed for: the validity of the user, the book, and re-taking the book.
 When returning a book, checks are performed for: the validity of the user, the book, whether the user has the book.
