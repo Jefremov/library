@@ -23,19 +23,43 @@ public class UserBookController {
     @PostMapping("/getBook/{username}/{isbn}")
     public ResponseEntity<?> getBook(@PathVariable String username, @PathVariable String isbn)
             throws BookNotFoundException, BookNotAvailableException, UserNotFoundException, BookAlreadyTakenException {
-        return new ResponseEntity<>(userBookService.getBook(username, isbn), HttpStatus.OK);
+        try {
+            ResponseEntity responseEntity = new ResponseEntity<>(userBookService.getBook(username, isbn), HttpStatus.OK);
+            System.out.println(responseEntity.getBody());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
     }
 
     @Operation(summary = "Return a book by username and ISBN")
     @PostMapping("/returnBook/{username}/{isbn}")
     public ResponseEntity<?> returnBook(@PathVariable String username, @PathVariable String isbn)
             throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException {
-        return new ResponseEntity<>(userBookService.returnBook(username, isbn), HttpStatus.OK);
+        try {
+            ResponseEntity responseEntity = new ResponseEntity<>(userBookService.returnBook(username, isbn), HttpStatus.OK);
+            System.out.println(responseEntity.getBody());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        }
+
     }
     @Operation(summary = "Order a book by username and ISBN. If the book is already taken, it will be ordered.")
     @PostMapping("/orderBook/{username}/{isbn}")
     public ResponseEntity<?> orderBook(@PathVariable String username, @PathVariable String isbn)
             throws BookNotFoundException, UserNotFoundException, BookAlreadyTakenException, BookNotAvailableException {
-        return new ResponseEntity<>(userBookService.orderBook(username, isbn), HttpStatus.OK);
+        try {
+            ResponseEntity responseEntity = new ResponseEntity<>(userBookService.orderBook(username, isbn), HttpStatus.OK);
+            System.out.println(responseEntity.getBody());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
 }

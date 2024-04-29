@@ -108,7 +108,7 @@ public class UserBookServiceImpl implements UserBookService {
         order.setUserId(user.getId());
         order.setBookId(book.getId());
         orderRepository.save(order);
-        return "Book ordered successfully";
+        return "Book with isbn: " + isbn + " has been ordered by user " + username;
     }
 
     protected void checkBookAndUser(String username, String isbn) throws BookNotFoundException, UserNotFoundException {
