@@ -53,8 +53,3 @@ When ordering a book when ordering a book: validity of the user, book, availabil
 - View information about 20 books with any author from 20 options.
 - View information about 20 books with any title from 20 options.
 - View information about all books.
-- 
-- 
-- Database: H2.
-- Unit test coverage: 84%. Due to the requirement for automatic execution of the application, changes had to be made to the application. Some tests do not execute.
-- [Documentation](http://localhost:8080/swagger-ui/index.html#/)
