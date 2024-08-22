@@ -145,7 +145,7 @@ class UserBookServiceImplTest {
     }
 
     @Test
-    void getBookThrowsBookNotAvailableExceptionWhenBookIsNotAvailable() throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException, BookNotAvailableException {
+    void getBookThrowsBookNotAvailableExceptionWhenBookIsNotAvailable() throws BookAlreadyTakenException, BookNotAvailableException {
         String username = "username";
         String isbn = "isbn";
         User user = new User();
@@ -182,7 +182,7 @@ class UserBookServiceImplTest {
     }
 
     @Test
-    void returnBookThrowsBookNotFoundExceptionWhenBookIsNotBorrowedByUser() throws UserNotFoundException, BookNotFoundException {
+    void returnBookThrowsBookNotFoundExceptionWhenBookIsNotBorrowedByUser() throws BookNotFoundException {
         String username = "username";
         String isbn = "isbn";
         User user = new User();
@@ -199,7 +199,7 @@ class UserBookServiceImplTest {
     }
 
     @Test
-    void returnBookThrowsBookNotFoundExceptionWhenBookIsReturnedThatWasNotBorrowed() throws UserNotFoundException, BookNotFoundException {
+    void returnBookThrowsBookNotFoundExceptionWhenBookIsReturnedThatWasNotBorrowed() throws BookNotFoundException {
         String username = "username";
         String isbn = "isbn";
         User user = new User();
@@ -294,7 +294,7 @@ class UserBookServiceImplTest {
 
     @Test
     void orderBookReturnsSuccessMessageWhenBookIsNotAvailableAndUserIsValidAndBookIsNotAlreadyTakenByUser()
-            throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException, BookNotAvailableException {
+            throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException {
         String username = "username";
         String isbn = "isbn";
         User user = new User();
