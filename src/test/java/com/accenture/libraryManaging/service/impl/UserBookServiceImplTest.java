@@ -310,7 +310,7 @@ class UserBookServiceImplTest {
 
         String result = userBookService.orderBook(username, isbn);
 
-        assertEquals("Book ordered successfully", result);
+        assertEquals("Book with isbn: isbn has been ordered by user username", result);
     }
 
 }
