@@ -35,21 +35,9 @@ Application functionality:
 - Viewing book information by ISBN.
 - Viewing book information by author.
 - Viewing book information by title.
-- Viewing information about all books. 
+- Viewing information about all books.
 
 Book information includes all users currently reading that book.
 When taking a book, checks are performed for: the validity of the user, the book, and re-taking the book.
 When returning a book, checks are performed for: the validity of the user, the book, whether the user has the book.
 When ordering a book when ordering a book: validity of the user, book, availability of the book from the user, ordering the book again.
-
-## Automated test scenario:
-- Up to 20 users are created with any name from 12 options.
-- Up to 20 books are created with any of the 12 ISBN options and any of the 6 author options.
-- Random users with any name from 20 options borrow 50 random books with any of the 20 ISBN options.
-- Random users with any name from 20 options order 50 random books with any of the 20 ISBN options.
-- Random users with any name from 20 options return 50 random books with any of the 20 ISBN options.
-- View information about 20 users with any name from 20 options.
-- View information about 20 books with any ISBN from 20 options.
-- View information about 20 books with any author from 20 options.
-- View information about 20 books with any title from 20 options.
-- View information about all books.
