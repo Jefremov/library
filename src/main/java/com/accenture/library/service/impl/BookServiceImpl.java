@@ -44,7 +44,7 @@ public class BookServiceImpl implements BookService {
         } else {
             book.setAvailable(1);
         }
-        Set<User> users = new HashSet<>();
+        HashSet<String> users = new HashSet<>();
         book.setUsers(users);
         return bookRepository.save(book);
     }

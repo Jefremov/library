@@ -10,6 +10,7 @@ public class UserBook {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @ManyToOne
@@ -20,11 +21,4 @@ public class UserBook {
     @JoinColumn(name = "book_id")
     private Book book;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

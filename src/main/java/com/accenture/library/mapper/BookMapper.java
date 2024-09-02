@@ -30,10 +30,7 @@ public class BookMapper {
         bookDao.setIsbn(book.getIsbn());
         bookDao.setDescription(book.getDescription());
         bookDao.setAvailable(book.getAvailable());
-        Set<String> users = new HashSet<>();
-        for (User user : book.getUsers()) {
-            users.add(user.getUsername());
-        }
+        Set<String> users = new HashSet<>(book.getUsers());
         bookDao.setUsers(users);
         return bookDao;
     }

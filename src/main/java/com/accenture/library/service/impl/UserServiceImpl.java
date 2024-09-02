@@ -15,9 +15,9 @@ import java.util.*;
 @Component
 public class UserServiceImpl implements UserService {
 
-    private UserMapper userMapper;
-    private UserRepository userRepository;
-    private UserBookService userBookService;
+    private final UserMapper userMapper;
+    private final UserRepository userRepository;
+    private final UserBookService userBookService;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper, UserRepository userRepository, UserBookService userBookService) {
@@ -33,8 +33,8 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new UserAlreadyExistsException("User " + user.getUsername() + " already exists");
         }
-        Set<Book> books = new HashSet<>();
-        user.setBooks(books);
+        HashSet<String> books = new HashSet<>();
+        user.setBookIsbns(books);
         return userRepository.save(user);
     }
 

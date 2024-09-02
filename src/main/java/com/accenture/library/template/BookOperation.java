@@ -1,11 +1,12 @@
 package com.accenture.library.template;
 
 import com.accenture.library.exceptions.*;
+import com.accenture.library.repository.BookRepository;
+import com.accenture.library.repository.UserRepository;
 import com.accenture.library.repository.entity.*;
 
-import java.util.*;
 
 public interface BookOperation {
-    void perform(Book book, User user, Set<String> books)
+    void perform(Book book, User user, UserRepository userRepository, BookRepository bookRepository)
             throws BookNotFoundException, BookNotAvailableException, UserNotFoundException, BookAlreadyTakenException;
 }

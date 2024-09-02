@@ -24,11 +24,6 @@ public class User {
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
     private List<Order> orders;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_book",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
-    )
-    private Set<Book> books = new HashSet<>();
+    private HashSet<String> bookIsbns = new HashSet<>();
+
 }

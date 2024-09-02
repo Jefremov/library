@@ -30,7 +30,7 @@ class UserMapperTest {
 
         assertEquals("Test User", user.getUsername());
         assertEquals("email", user.getEmail());
-        assertEquals(new HashSet<>(), user.getBooks());
+        assertEquals(new HashSet<>(), user.getBookIsbns());
         assertEquals(new ArrayList<>(), user.getOrders());
     }
 
@@ -54,7 +54,7 @@ class UserMapperTest {
         book1.setIsbn("ISBN1");
         Book book2 = new Book();
         book2.setIsbn("ISBN2");
-        user.setBooks(new HashSet<>(Arrays.asList(book1, book2)));
+        user.setBookIsbns(new HashSet<>(Arrays.asList(book1.getIsbn(), book2.getIsbn())));
 
         UserDao userDao = userMapper.userToUserDao(user);
 

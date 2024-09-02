@@ -154,7 +154,8 @@ class UserBookServiceImplTest {
         when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
         when(userRepository.findByUsername(username)).thenReturn(user);
         when(bookRepository.findByIsbn(isbn)).thenReturn(book);
-        doThrow(new BookNotAvailableException("Book with isbn: " + isbn + " has not been borrowed by user " + username)).when(borrowBookOperation).perform(book, user, new HashSet<>());
+        doThrow(new BookNotAvailableException("Book with isbn: " + isbn + " has not been borrowed by user " + username))
+                .when(borrowBookOperation).perform(book, user, userRepository, bookRepository);
 
         assertThrows(BookNotAvailableException.class, () -> userBookService.getBook(username, isbn));
     }
@@ -190,7 +191,8 @@ class UserBookServiceImplTest {
         when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
         when(userRepository.findByUsername(username)).thenReturn(user);
         when(bookRepository.findByIsbn(isbn)).thenReturn(book);
-        doThrow(new BookNotFoundException("Book with isbn: " + isbn + " has not been borrowed by user " + username)).when(returnBookOperation).perform(book, user, new HashSet<>());
+        doThrow(new BookNotFoundException("Book with isbn: " + isbn + " has not been borrowed by user " + username))
+                .when(returnBookOperation).perform(book, user, userRepository, bookRepository);
 
         assertThrows(BookNotFoundException.class, () -> userBookService.returnBook(username, isbn));
     }
@@ -208,7 +210,8 @@ class UserBookServiceImplTest {
         when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
         when(userRepository.findByUsername(username)).thenReturn(user);
         when(bookRepository.findByIsbn(isbn)).thenReturn(book);
-        doThrow(new BookNotFoundException("Book with isbn: " + isbn + " has not been borrowed by user " + username)).when(returnBookOperation).perform(book, user, new HashSet<>());
+        doThrow(new BookNotFoundException("Book with isbn: " + isbn + " has not been borrowed by user " + username))
+                .when(returnBookOperation).perform(book, user, userRepository, bookRepository);
 
         assertThrows(BookNotFoundException.class, () -> userBookService.returnBook(username, isbn));
     }
@@ -242,7 +245,7 @@ class UserBookServiceImplTest {
         Book book = new Book();
         book.setIsbn(isbn);
         book.setAvailable(0);
-        user.setBooks(new HashSet<>(Collections.singletonList(book)));
+        user.setBookIsbns(new HashSet<>(Collections.singletonList(book.getIsbn())));
         when(userRepository.existsByUsername(username)).thenReturn(true);
         when(bookRepository.existsByIsbn(isbn)).thenReturn(true);
         when(userRepository.findByUsername(username)).thenReturn(user);

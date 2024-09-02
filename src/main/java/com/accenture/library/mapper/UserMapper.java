@@ -21,10 +21,7 @@ public class UserMapper {
     public UserDao userToUserDao(User user) {
         UserDao userDao = new UserDao();
         userDao.setName(user.getUsername());
-        Set<String> books = new HashSet<>();
-        for (Book book : user.getBooks()) {
-            books.add(book.getIsbn());
-        }
+        Set<String> books = new HashSet<>(user.getBookIsbns());
         userDao.setBooks(books);
         return userDao;
     }

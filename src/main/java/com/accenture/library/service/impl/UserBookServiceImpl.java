@@ -9,20 +9,19 @@ import com.accenture.library.service.*;
 import com.accenture.library.template.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
 
 import java.util.*;
 
 @Service
 public class UserBookServiceImpl implements UserBookService {
 
-    private BookRepository bookRepository;
-    private UserBookRepository userBookRepository;
-    private UserRepository userRepository;
-    private BookPublisher bookPublisher;
-    private OrderRepository orderRepository;
-    private BorrowBookOperation borrowBookOperation;
-    private ReturnBookOperation returnBookOperation;
+    private final BookRepository bookRepository;
+    private final UserBookRepository userBookRepository;
+    private final UserRepository userRepository;
+    private final BookPublisher bookPublisher;
+    private final OrderRepository orderRepository;
+    private final BorrowBookOperation borrowBookOperation;
+    private final ReturnBookOperation returnBookOperation;
 
 
     @Autowired
@@ -61,15 +60,12 @@ public class UserBookServiceImpl implements UserBookService {
     }
 
     @Override
-    @Transactional
     public Book getBook(String username, String isbn)
             throws BookNotFoundException, BookNotAvailableException, UserNotFoundException, BookAlreadyTakenException {
         checkBookAndUser(username, isbn);
         Book book = bookRepository.findByIsbn(isbn);
         User user = userRepository.findByUsername(username);
-        Set<String> books = getBooksByUser(user);
-
-        performBookOperation(borrowBookOperation, book, user, books);
+        performBookOperation(borrowBookOperation, book, user, userRepository, bookRepository);
 
         return book;
     }
@@ -81,10 +77,7 @@ public class UserBookServiceImpl implements UserBookService {
         checkBookAndUser(username, isbn);
         Book book = bookRepository.findByIsbn(isbn);
         User user = userRepository.findByUsername(username);
-        Set<String> books = getBooksByUser(user);
-        performBookOperation(returnBookOperation, book, user, books);
-        UserBook userBook = userBookRepository.findByUserIdAndBookId(user.getId(), book.getId());
-        userBookRepository.delete(userBook);
+        performBookOperation(returnBookOperation, book, user, userRepository, bookRepository);
         bookPublisher.notifyObservers(isbn);
         return book;
     }
@@ -101,7 +94,7 @@ public class UserBookServiceImpl implements UserBookService {
         if (book.getAvailable() > 0) {
             throw new BookAlreadyTakenException(isbn + " is available");
         }
-        if (user.getBooks().contains(book)) {
+        if (user.getBookIsbns().contains(isbn)) {
             throw new BookAlreadyTakenException(isbn + " has already been borrowed by user " + username);
         }
         Order order = new Order();
@@ -120,10 +113,11 @@ public class UserBookServiceImpl implements UserBookService {
         }
     }
 
-    protected void performBookOperation(BookOperation operation, Book book, User user, Set<String> books)
+    protected void performBookOperation(BookOperation operation, Book book, User user,
+                                        UserRepository userRepository, BookRepository bookRepository)
             throws UserNotFoundException, BookAlreadyTakenException, BookNotFoundException, BookNotAvailableException {
 
-        operation.perform(book, user, books);
+        operation.perform(book, user, userRepository, bookRepository);
         bookRepository.save(book);
     }
 

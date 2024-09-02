@@ -29,7 +29,7 @@ class BookMapperTest {
         expectedBook.setTitle("Title");
         expectedBook.setPublishingYear(2020);
         expectedBook.setDescription("Description");
-        expectedBook.setUsers(new HashSet<User>());
+        expectedBook.setUsers(new HashSet<String>());
 
         Book mappedBook = bookMapper.mapToEntity(bookDto, newBook);
 
@@ -49,7 +49,7 @@ class BookMapperTest {
         book.setGenre(Genre.FICTION);
         User user = new User();
         user.setUsername("User1");
-        book.setUsers(new HashSet<>(Collections.singletonList(user)));
+        book.setUsers(new HashSet<>(Collections.singletonList(user.getUsername())));
 
         BookDao expectedBookDao = new BookDao();
         expectedBookDao.setAuthor("Author");
